@@ -1,19 +1,21 @@
 const http = require("http"); //import an HTTP node modules
 const url = require("url"); //url module 
-const fs = require('fs'); //file system module 
+const fs = require('fs'); //file system module to access the files
+const { isAbsolute } = require('path');
 
 //create server
 const server =
     http.createServer(
         function(req, res) {
-            // console.log(req);
-            // res.write("Hello Nelson, Welcome to Node Server Project")
-            // res.end();
-
-
             //get the path name
             const parsedUrl = url.parse(req.url);
-            const fileName = parsedUrl.pathname !== "/" ? `.${parsedUrl.pathname}.html`;
+            let fileName;
+
+            if (parsedUrl.pathname !== "/") {
+                fileName = `.${parsedUrl.pathname}.html`;
+            } else {
+                fileName = './index.html';
+            }
 
             fs.readFile(fileName, function(error, data) {
                 if (data) {
@@ -21,14 +23,16 @@ const server =
                     res.end();
                 } else {
 
-                    res.write("Page Not Found");
-                    res.end();
+                    fs.readFile('./404.html', function(error, data) {
+                        res.write(data);
+                        res.end();
+
+                    })
 
                 }
 
 
             });
-
         }
 
     );
